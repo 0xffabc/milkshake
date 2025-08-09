@@ -3,6 +3,7 @@ package com.github
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
 
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.RenderTickCounter
@@ -11,6 +12,9 @@ import net.minecraft.client.option.KeyBinding
 import net.minecraft.client.util.InputUtil
 import net.minecraft.client.util.Window
 import net.minecraft.client.font.TextRenderer
+import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.client.render.WorldRenderer
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
 
 import com.client.github.feature.FeatureConfig
 import com.client.github.feature.visual.ExtrasensoryPerception
@@ -72,7 +76,16 @@ object SagilithsPvEUtilsPrivateClient : ClientModInitializer {
     Tick.listen()
 
     ExtrasensoryPerception.bootstrap()
+
+    WorldRenderEvents.END.register(::renderWorld)
 	}
+
+  private fun renderWorld(world: WorldRenderContext) {
+    val stack = world?.matrixStack() ?: return
+    val consumers = world?.consumers() ?: return
+    
+    ExtrasensoryPerception.render(stack, consumers)
+  }
 
   private fun renderFeature(
     x: Int,
@@ -194,8 +207,6 @@ object SagilithsPvEUtilsPrivateClient : ClientModInitializer {
     context: DrawContext,
     tickCounter: RenderTickCounter
   ) {
-    ExtrasensoryPerception.render(context)
-
     if ((
       ::window.isInitialized.not() || ::textRenderer.isInitialized.not()
     ) && (

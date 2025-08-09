@@ -6,8 +6,11 @@ import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.world.ClientWorld
 import net.minecraft.client.render.*
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.Entity
 import net.minecraft.util.math.Vec3d
 import net.minecraft.client.util.math.MatrixStack
+import net.minecraft.util.math.MathHelper
+
 import com.mojang.blaze3d.systems.RenderSystem
 
 import com.client.github.feature.Module
@@ -15,128 +18,116 @@ import com.client.github.util.Geometry
 import com.client.github.util.Point
 
 import kotlin.math.*
+import org.joml.*
 
-import org.joml.Matrix4f
-import org.joml.Vector3d
-import org.joml.Vector3f
-import org.joml.Vector4f
-import org.joml.Vector2d
+fun toDirVec(pitch: Double, yaw: Double): Vec3d {
+  val yawCos = MathHelper.cos(yaw.toFloat()).toDouble()
+  val yawSin = MathHelper.sin(yaw.toFloat()).toDouble()
 
-import org.lwjgl.opengl.GL11;
+  val pitchSin = MathHelper.sin(pitch.toFloat()).toDouble()
+  val npitchCos = MathHelper.cos(PI.toFloat() + pitch.toFloat()).toDouble()
+
+  return Vec3d(
+    yawSin * npitchCos,
+    pitchSin,
+    yawCos * npitchCos
+  )
+}
+
+fun drawLine(
+  matrices: MatrixStack,
+  vertexConsumers: VertexConsumerProvider,
+  cameraX: Double,
+  cameraY: Double,
+  cameraZ: Double,
+  entityPos: Vec3d,
+  targetPos: Vec3d,
+  color: Int
+) {
+  val layer = RenderLayer.getDebugLineStrip(5.0)
+  val consumer = vertexConsumers.getBuffer(layer)
+
+  consumer.vertex(matrices.peek(), (entityPos.x - cameraX).toFloat(), (entityPos.y - cameraY).toFloat(), (entityPos.z - cameraZ).toFloat()).color(color)
+  consumer.vertex(matrices.peek(), (targetPos.x - cameraX).toFloat(), (targetPos.y - cameraY).toFloat(), (targetPos.z - cameraZ).toFloat()).color(color) 
+}
 
 fun toRadians(deg: Double): Double = deg / 180.0 * PI
 
 object ExtrasensoryPerception {
-  private val mod = Module(
+  private val modPlayer = Module(
     "Visual",
-    "Entity tracers"
+    "Player tracers"
+  )
+
+  private val modMob = Module(
+    "Visual",
+    "Mob tracers"
+  )
+
+  private val modItem = Module(
+    "Visual",
+    "Item tracers"
   )
 
   private lateinit var mc: MinecraftClient
-
-  private fun getVCP(): VertexConsumerProvider.Immediate = mc.getBufferBuilders().getEntityVertexConsumers()
-
-  private fun drawLine(
-    start: Vec3d,
-    end: Vec3d,
-    color: Triple<Int, Int, Int>,
-    matrix: Matrix4f,
-    entry: MatrixStack.Entry,
-    buf: VertexConsumer
-  ) {
-    var (rc, gc, bc) = color
-
-    val r = rc / 255.0f
-    val g = gc / 255.0f
-    val b = bc / 255.0f
-
-    val norm = Vector3d(end.getX(), end.getY(), end.getZ()).sub(start.getX(), start.getY(), start.getZ()).normalize()
-
-    RenderSystem.setShader(GameRenderer::getPositionColorProgram)
-
-    val dist = sqrt((start.getX() - end.getX()).pow(2) + (start.getY() - end.getY()).pow(2) + (start.getZ() - end.getZ()).pow(2))
-    val alpha = (1f - dist / 5000f).coerceIn(0.0, 0.9).toFloat()
-
-    buf.vertex(matrix, start.getX().toFloat(), start.getY().toFloat(), start.getZ().toFloat())
-      .color(r, g, b, alpha)
-      .normal(entry, norm.x().toFloat(), norm.y().toFloat(), norm.z().toFloat())
-    buf.vertex(matrix, end.getX().toFloat(), end.getY().toFloat(), end.getZ().toFloat())
-      .color(r, g, b, alpha)
-      .normal(entry, norm.x().toFloat(), norm.y().toFloat(), norm.z().toFloat())
- 
-    RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f); 
-  }
+  private var wasBobblingOn: Boolean = false
 
   fun bootstrap() {
     mc = MinecraftClient.getInstance()
   }
 
-  fun render(drawContext: DrawContext) {
-    if (!mod.enabled()) return
+  fun render(stack: MatrixStack, consumers: VertexConsumerProvider) {
+    if (!modPlayer.enabled() && !modMob.enabled() && !modItem.enabled()) {
+      if (wasBobblingOn) mc.options.getBobView().setValue(true)
+
+      return
+    }
+
+    RenderSystem.disableDepthTest()
+    RenderSystem.lineWidth(3.5f)
 
     mc?.world?.let {
       val entities = (mc.world as ClientWorld).getEntities()
-
-      val camFov = mc.options?.getFov()?.getValue() ?: return@render
-
-      val sw = drawContext.getScaledWindowWidth()
-      val sh = drawContext.getScaledWindowHeight()
-
-      val gameRenderer = mc.gameRenderer
-      val camera = mc.gameRenderer.getCamera()
-      val cameraRotation = camera.getRotation()
-
-      val matrices = drawContext.getMatrices()
-
-      matrices.push()
-
-      matrices.translate(sw / 2.0, sh / 2.0, 0.0)
-      matrices.multiply(cameraRotation)
-      matrices.scale(1f, -1f, -1f)
-
-      val entry = matrices.peek()
-      val matrix = entry.getPositionMatrix()
-
-      val cameraPos = mc.getBlockEntityRenderDispatcher().camera.getPos()
-      
-      val projMatrix = gameRenderer.getBasicProjectionMatrix(toRadians(camFov.toDouble()))
-      val viewMatrix = RenderSystem.getModelViewMatrix()
-
-      for (entity in entities) {
-        val vcp = getVCP()
-
-        val buffer = vcp.getBuffer(RenderLayer.LINES)
-
-        val color = when {
-          entity.isPlayer() -> Triple(180, 40, 40)
-          entity is LivingEntity -> Triple(180, 180, 40)
-          else -> continue
-        }
-
-        val pos = entity.getPos() ?: continue
-
-        val tmpVec = Vector4f(
-          pos.getX().toFloat() - cameraPos.getX().toFloat(),
-          pos.getY().toFloat() - cameraPos.getY().toFloat(),
-          pos.getZ().toFloat() - cameraPos.getZ().toFloat(), 1f
-        ).mul(viewMatrix).mul(projMatrix)
-
-        val nx = tmpVec.x() / tmpVec.w()
-        val ny = tmpVec.y() / tmpVec.w()
-        val nz = tmpVec.z() / tmpVec.w()
-
-        if (nx <= -1.0 || nx >= 1.0 || ny <= -1.0 || ny >= 1.0) continue
-
-        val screenX = ((nx + 1.0) / 2.0) * sw
-        val screenY = sh - ((ny + 1.0) / 2.0) * sh
  
-        drawLine(Vec3d.ZERO, pos.add(0.0, entity.height / 2.0, 0.0).subtract(cameraPos), color, matrix, entry, buffer)
-        //drawLine(Vec3d.ZERO.add(sw / 2.0, sh / 2.0, 0.0), Vec3d(screenX.toDouble(), screenY.toDouble(), nz.toDouble()), color, matrix, entry, buffer)
+      val camera = mc.getBlockEntityRenderDispatcher().camera
+      val cameraPos = camera.getPos()
 
-        vcp.draw(RenderLayer.LINES)
+      val tickDelta = camera.getLastTickDelta()
+
+      val camYaw = -MathHelper.wrapDegrees(camera.getYaw().toDouble()) * MathHelper.RADIANS_PER_DEGREE - PI
+      val camPitch = -MathHelper.wrapDegrees(camera.getPitch().toDouble()) * MathHelper.RADIANS_PER_DEGREE
+
+      val dirVec = toDirVec(camPitch, camYaw)
+
+      if (mc.options.getBobView().getValue()) {
+        wasBobblingOn = true
+
+        mc.options.getBobView().setValue(false)
       }
 
-      matrices.pop()
+      for (entity in entities) {
+        val color = when {
+          entity.isPlayer() && modPlayer.enabled() -> 0xFFB42828
+          entity is LivingEntity && modMob.enabled() -> 0xFFB4B428
+          modItem.enabled() && !(entity is LivingEntity) -> 0xFF96F0FF
+          else -> continue
+        }.toInt()
+
+        val pos = entity.getLerpedPos(tickDelta) ?: continue
+        
+        drawLine(
+          stack, consumers,
+          cameraPos.getX(), cameraPos.getY(), cameraPos.getZ(),
+          pos.add(0.0, entity.height / 2.0, 0.0),
+          cameraPos.add(dirVec),
+          color
+        )
+      }
+
+      RenderSystem.setShader(GameRenderer::getPositionColorProgram)
+      RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F) 
     }
+
+    RenderSystem.enableDepthTest()
   }
 }
