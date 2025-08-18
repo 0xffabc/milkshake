@@ -1,14 +1,10 @@
 package com.client.github.bootstrap
 
-import com.client.github.feature.utility.FastBreak
-import com.client.github.feature.utility.FastPlace
-import com.client.github.feature.utility.FreeCam
-import com.client.github.feature.utility.FullBright
-import com.client.github.feature.elytra.ElytraTiming
-import com.client.github.feature.elytra.ElytraFlight
-import com.client.github.feature.visual.Zoom
-import com.client.github.feature.combat.KillAura
-import com.client.github.feature.player.AntiFireDamage
+import com.client.github.feature.utility.*
+import com.client.github.feature.elytra.*
+import com.client.github.feature.visual.*
+import com.client.github.feature.combat.*
+import com.client.github.feature.player.*
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 
@@ -23,7 +19,9 @@ object Tick {
       ElytraFlight.tick()
       Zoom.tick()
       KillAura.tick()
+      HoldHit.tick()
       AntiFireDamage.tick()
+      Sprint.tick() // IMPORTANT: Sprint module should be ran after all hits, otherwise we'll get consta sweep hits
     }
   }
 }

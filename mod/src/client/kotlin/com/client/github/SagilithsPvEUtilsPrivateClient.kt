@@ -18,12 +18,10 @@ import net.minecraft.client.render.WorldRenderer
 import net.minecraft.util.Identifier
 
 import com.client.github.feature.FeatureConfig
-import com.client.github.feature.visual.ExtrasensoryPerception
-import com.client.github.feature.visual.Zoom
-import com.client.github.feature.elytra.ElytraTiming
-import com.client.github.feature.elytra.ElytraFlight
-import com.client.github.feature.combat.KillAura
-import com.client.github.feature.player.AntiFireDamage
+import com.client.github.feature.visual.*
+import com.client.github.feature.elytra.*
+import com.client.github.feature.combat.*
+import com.client.github.feature.player.*
 import com.client.github.components.Circle.*
 import com.client.github.bootstrap.Tick
 
@@ -71,6 +69,7 @@ object SagilithsPvEUtilsPrivateClient : ClientModInitializer {
     Zoom.bootstrap()
     KillAura.bootstrap()
     AntiFireDamage.bootstrap()
+    HoldHit.bootstrap()
 
     WorldRenderEvents.BEFORE_DEBUG_RENDER.register(::renderWorld)
 	}
@@ -79,11 +78,9 @@ object SagilithsPvEUtilsPrivateClient : ClientModInitializer {
     val time = System.currentTimeMillis().toFloat()
 
     if (MC.mouse.wasLeftButtonClicked()) {
-      if (!mouseHolding && time - lastClick > 50f) {
+      if (!mouseHolding) {
         clicked = true
         mouseHolding = true
-
-        //lastClick = time
       }
     } else {
       mouseHolding = false 
