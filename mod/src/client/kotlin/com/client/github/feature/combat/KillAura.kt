@@ -20,7 +20,7 @@ object KillAura {
   val onlyFans = Module("Combat", "KillAura:OnlyCrits")
   val triggerBot = Module("Combat", "KillAura:TriggerBot")
 
-  val killauraReach = 3.0
+  val killauraReach = 4.0
 
   fun bootstrap() {
     mc = MinecraftClient.getInstance()

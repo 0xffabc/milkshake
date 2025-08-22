@@ -77,6 +77,11 @@ remap_jar(
     to_namespace = "named",
 )
 
+filegroup(
+    name = "resourcepacks",
+    srcs = glob(["src/client/resources/resourcepacks/**/*"]),
+)
+
 kt_jvm_library(
     name = "mod_unmapped",
     srcs = glob([
@@ -85,7 +90,8 @@ kt_jvm_library(
     resources = [
         "src/client/resources/fabric.mod.json",
         "src/client/resources/sagiliths-pve-utils-private.mixins.json",
-        "src/client/resources/sagiliths-pve-utils-private.client.mixins.json"
+        "src/client/resources/sagiliths-pve-utils-private.client.mixins.json",
+        ":resourcepacks"
     ],
     resource_strip_prefix = "mod/src/client/resources",
     visibility = ["//visibility:public"],

@@ -61,8 +61,6 @@ object ExtrasensoryPerception {
 
   fun bootstrap() {
     mc = MinecraftClient.getInstance()
-
-    modPlayer.enable()
   }
 
   fun render(stack: MatrixStack, consumers: VertexConsumerProvider) {

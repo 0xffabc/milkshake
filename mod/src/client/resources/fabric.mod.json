@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "sagiliths-pve-utils-private",
-	"version": "${version}",
+	"version": "1",
 	"name": "Sagilith's PvE utils (Private)",
 	"description": "Necessary PvE utils for fair adventage over others",
 	"authors": [

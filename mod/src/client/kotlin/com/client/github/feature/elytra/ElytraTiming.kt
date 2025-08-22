@@ -23,7 +23,6 @@ object ElytraTiming {
 
   fun bootstrap() {
     mc = MinecraftClient.getInstance()
-    mod.enable()
   }
 
   internal fun filterForGrimAC(): Boolean? {

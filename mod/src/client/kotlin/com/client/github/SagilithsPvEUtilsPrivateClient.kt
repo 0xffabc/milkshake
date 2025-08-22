@@ -5,6 +5,9 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper
+import net.fabricmc.loader.api.FabricLoader
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType
 
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.render.RenderTickCounter
@@ -72,6 +75,14 @@ object SagilithsPvEUtilsPrivateClient : ClientModInitializer {
     HoldHit.bootstrap()
 
     WorldRenderEvents.BEFORE_DEBUG_RENDER.register(::renderWorld)
+
+    val container = FabricLoader.getInstance().getModContainer("sagiliths-pve-utils-private")
+
+    ResourceManagerHelper.registerBuiltinResourcePack(
+      Identifier.of("sagiliths-pve-utils-private", "sagiliths-pve-utils-private"),
+      container.get(),
+      ResourcePackActivationType.ALWAYS_ENABLED
+    )
 	}
 
   private fun updateMouse() {

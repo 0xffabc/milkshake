@@ -16,6 +16,8 @@ object DangerMobAlert {
     "Hostile alert"
   )
 
+  init { mod.enable() }
+
   private lateinit var hostileEntities: List<Entity>
 
   fun tick() {
@@ -25,7 +27,7 @@ object DangerMobAlert {
 
     hostileEntities = entities
       .toList()
-      .filter { it !is PassiveEntity && it !is PlayerEntity && it?.getName() != null && it.squaredDistanceTo(player) < 6 }
+      .filter { it !is PassiveEntity && it != mc.player && it?.getName() != null && it.squaredDistanceTo(player) < 6 }
   }
 
   fun render(context: DrawContext) {

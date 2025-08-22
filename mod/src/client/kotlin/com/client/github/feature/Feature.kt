@@ -8,7 +8,8 @@ object FeatureConfig {
     "Elytra" to "textures/item/elytra.png",
     "Visual" to "textures/item/spyglass.png",
     "Player" to "textures/item/empty_slot_redstone_dust.png",
-    "Utility" to "textures/item/ender_eye.png"
+    "Utility" to "textures/item/ender_eye.png",
+    "Boat" to "textures/item/birch_boat.png"
   )
 }
 

@@ -5,6 +5,7 @@ import com.client.github.feature.elytra.*
 import com.client.github.feature.visual.*
 import com.client.github.feature.combat.*
 import com.client.github.feature.player.*
+import com.client.github.feature.boat.*
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 
@@ -25,6 +26,7 @@ object Tick {
       NoJumpDelay.tick()
       LagAlert.tick()
       DangerMobAlert.tick()
+      BoatFlight.tick()
     }
   }
 }
