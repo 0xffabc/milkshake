@@ -18,9 +18,12 @@ object FeatureConfig {
 
 open class Module(
   val featureGroup: String,
-  val featureName: String
+  val featureName: String,
+  val defaultState: Boolean = false
 ) {
   init {
+    FeatureConfig.config.put(featureName, defaultState)
+
     val featureSelector = Select<Unit>(name = featureName, description = "Not implemented", { true })
 
     if (":" in featureName) {
@@ -28,8 +31,6 @@ open class Module(
 
         
     }
-
-    FeatureConfig.config.put(featureName, false)
 
     if (!FeatureConfig.tabsData.containsKey(featureGroup)) {
       FeatureConfig.tabsData.put(featureGroup, mutableListOf(featureName))

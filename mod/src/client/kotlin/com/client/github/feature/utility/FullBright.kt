@@ -10,7 +10,8 @@ import java.lang.reflect.Field
 object FullBright {
   val mod = Module(
     "Utility",
-    "Full brightness"
+    "Full brightness",
+    true
   )
 
   val mc = MinecraftClient.getInstance()

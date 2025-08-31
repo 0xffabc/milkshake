@@ -28,6 +28,7 @@ object Tick {
       DangerMobAlert.tick()
       BoatFlight.tick()
       PlayerFlight.tick()
+      TargetStrafe.tick()
     }
   }
 }

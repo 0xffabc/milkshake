@@ -13,7 +13,8 @@ object DangerMobAlert {
 
   private val mod = Module(
     "Visual",
-    "Hostile alert"
+    "Hostile alert",
+    true
   )
 
   init { mod.enable() }

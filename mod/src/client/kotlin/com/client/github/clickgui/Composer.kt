@@ -118,15 +118,18 @@ class Select<in T>(
  
   fun initModule(that: Module) {
     module = that
+
+    state = module.enabled()
   }
 
   private fun switchState() {
     if (!alreadyClicked) {
-      state = !state
       alreadyClicked = true
 
       if (::module.isInitialized) {
         module.invertState()
+
+        state = module.enabled()
       }
     }
   }
