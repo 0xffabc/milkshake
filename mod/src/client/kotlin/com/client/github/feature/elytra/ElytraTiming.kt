@@ -48,7 +48,7 @@ object ElytraTiming {
     mc?.networkHandler?.sendPacket(ClientCommandC2SPacket(mc!!.player, ClientCommandC2SPacket.Mode.START_FALL_FLYING))
     mc?.player?.startFallFlying()
 
-    if (FeatureConfig.config.getOrDefault("Elytra flight", false) && !ElytraFlight.grimFlight.enabled()) {
+    if (::resetPos.isInitialized && FeatureConfig.config.getOrDefault("Elytra flight", false) && !ElytraFlight.grimFlight.enabled()) {
       mc?.player?.setPosition(resetPos.getX(), resetPos.getY(), resetPos.getZ())
     }
 

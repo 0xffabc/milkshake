@@ -3,7 +3,7 @@
     "type": "ttf",
     "file": "minecraft:norm.ttf",
     "shift": [0, 1],
-    "size": 8,
-    "oversample": 4.0
+    "size": 10,
+    "oversample": 6.0
   }]
 } 

@@ -6,6 +6,7 @@ import net.minecraft.util.math.MathHelper
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
 
 import com.client.github.feature.Module
+import com.client.github.feature.elytra.ElytraTiming
 
 import kotlin.math.*
 
@@ -37,9 +38,42 @@ object ElytraFlight {
     "Elytra flight:Boost"
   )
 
+  val themisFlight = Module(
+    "Elytra",
+    "Elytra flight:Themis"
+  )
+
   private lateinit var mc: MinecraftClient
 
   public var velocity = 0.02
+  public var themisFlightYLevel = 80.0
+  public var themisFlightYGap = 10.0
+  public var themisFlightYVel = 3.0
+  public var reachedYMax = false
+
+  internal fun themisFlight() {
+    val player = mc.player ?: return
+
+    if ((player.getY() < themisFlightYLevel - themisFlightYGap || (aboutToHitGround() ?: false)) && !reachedYMax) {
+      player.setVelocity(0.0, min(themisFlightYLevel - player.getY(), themisFlightYVel), 0.0)
+    } else {
+      if (aboutToHitGround() ?: false) {
+        reachedYMax = false
+
+        return themisFlight()
+      }
+
+      if (player.getY() > themisFlightYLevel + themisFlightYGap) {
+        ElytraTiming.enter()
+      }
+
+      reachedYMax = player.getY() > themisFlightYLevel - themisFlightYGap
+
+      if (!reachedYMax) {
+        ElytraTiming.quit()
+      }
+    }
+  }
 
   private var bouncePitch: Float? = null
 
@@ -83,6 +117,7 @@ object ElytraFlight {
 
   fun tick() {
     if (!mod.enabled()) return
+    if (themisFlight.enabled()) return themisFlight()
     if (bounceFlight.enabled()) return bounceFly()
     if (!(mc?.player?.isFallFlying() ?: false)) return
 

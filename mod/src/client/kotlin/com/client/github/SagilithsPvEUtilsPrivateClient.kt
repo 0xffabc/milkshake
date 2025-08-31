@@ -28,6 +28,7 @@ import com.client.github.feature.player.*
 import com.client.github.components.Circle.*
 import com.client.github.bootstrap.Tick
 import com.client.github.clickgui.Composer
+import com.client.github.components.*
 
 import kotlin.math.*
 
@@ -117,11 +118,17 @@ object SagilithsPvEUtilsPrivateClient : ClientModInitializer {
     var featureList = featureList.flatten()
     val activeFeatures = featureList.filter { feature -> FeatureConfig.config.getOrDefault(feature, false) }
 
+    val width = textRenderer.getWidth(activeFeatures.sortedWith { a, b -> 
+      textRenderer.getWidth(a) - textRenderer.getWidth(b)
+    }.last()).toFloat()
+
+    Box.create(window.scaledWidth - width - 10f, 0f, width + 10f, offset * activeFeatures.size * 1f, context, 0x80000000.toInt())
+
     activeFeatures.forEachIndexed { index, feature -> 
       context.drawText(
         textRenderer,
         feature,
-        window.scaledWidth - textRenderer.getWidth(feature) - 5,
+        window.scaledWidth - (width.toInt() + textRenderer.getWidth(feature)) / 2 - 5,
         index * offset,
         0xFFE6E6E6.toInt(),
         true
