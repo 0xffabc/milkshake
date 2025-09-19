@@ -23,7 +23,9 @@ jobs:
         uses: abhinavsingh/setup-bazel@v3
 
       - name: bzl build
-        run: bazel build @milkshake//mod --output_groups=default,executable
+        run: | 
+          cd /home/runner/work/milkshake/milkshake
+          bazel build @milkshake//mod --output_groups=default,executable
           
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
