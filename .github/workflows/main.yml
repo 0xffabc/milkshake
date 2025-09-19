@@ -2,27 +2,41 @@ name: Milkshake builder
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-java@v5.0.0
-      - uses: abhinavsingh/setup-bazel@v3
+      - name: repo import
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Build
-      - run: bazel build @milkshake//mod --output_groups=default,executable;
+      - name: jdk boot
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: bzl boot
+        uses: abhinavsingh/setup-bazel@v3
+
+      - name: bzl build
+        run: bazel build @milkshake//mod --output_groups=default,executable
 
       - name: Upload artifact
-      - run: |
-          cp bazel-bin/mod/mod.jar ./mod
-          git config --global user.name 'pankak'
+        run: |
+          mkdir -p mod
+          cp bazel-bin/mod/mod.jar ./mod/
+          
+      - name: Commit and push
+        run: |
+          git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add mod/mod.jar
-          git commit -am 'bye bye :mewing:'
+          git commit -m 'Automated build: Update mod.jar'
           git push
