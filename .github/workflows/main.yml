@@ -25,8 +25,8 @@ jobs:
       - name: bzl reinstall
         run: |
           wget https://github.com/bazelbuild/bazel/releases/download/8.4.2/bazel-8.4.2-linux-x86_64
-          mv bazel-8.4.2-linux-x86_64 /usr/local/lib/bazel/bin/bazel-8.4.2-linux-x86_64
-          chmod +x /usr/local/lib/bazel/bin/bazel-8.4.2-linux-x86_64
+          sudo mv bazel-8.4.2-linux-x86_64 /usr/local/lib/bazel/bin/bazel-8.4.2-linux-x86_64
+          sudo chmod +x /usr/local/lib/bazel/bin/bazel-8.4.2-linux-x86_64
 
       - name: bzl build
         run: | 
