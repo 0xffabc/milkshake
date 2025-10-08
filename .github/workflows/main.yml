@@ -19,6 +19,16 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
+      - name: bzl cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/bazel
+            bazel-deps-cache/
+          key: ${{ runner.os }}-bazel-${{ hashFiles('MODULE.bazel', 'WORKSPACE', '**.bzl') }}
+          restore-keys: |
+            ${{ runner.os }}-bazel-
+
       - name: bzl boot
         uses: abhinavsingh/setup-bazel@v3
 
