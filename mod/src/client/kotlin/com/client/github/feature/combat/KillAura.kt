@@ -20,7 +20,7 @@ object KillAura {
   val onlyFans = Module("Combat", "KillAura:OnlyCrits")
   val triggerBot = Module("Combat", "KillAura:TriggerBot")
 
-  val killauraReach = 4.2 // Why is it not 3.0? Don't fucking ask me.
+  val killauraReach = 4.2
 
   fun bootstrap() {
     mc = MinecraftClient.getInstance()
@@ -39,7 +39,7 @@ object KillAura {
     mc.interactionManager?.attackEntity(mc.player, entity)
     (mc.player as ClientPlayerEntity).swingHand((mc.player as ClientPlayerEntity).getActiveHand())
 
-    hitCooldown = 8
+    hitCooldown = 11
 
     return true
   }
@@ -91,3 +91,4 @@ object KillAura {
     }
   }
 }
+
