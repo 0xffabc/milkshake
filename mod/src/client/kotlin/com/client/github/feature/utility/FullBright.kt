@@ -18,10 +18,6 @@ object FullBright {
 
   val field = SimpleOption::class.java.getDeclaredField("field_37868") // value field
 
-  init {
-    mod.enable()
-  }
-
   fun tick() { 
     if (!mod.enabled()) return
  
@@ -33,4 +29,5 @@ object FullBright {
     }
   }
 }
+
 
