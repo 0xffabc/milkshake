@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.client.github.milkshake.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "MovementPacketMixin",
+    "SharedConstantsMixin",
+    "AbstractClientPlayerEntityMixin",
+    "MusicTrackerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "environment": "client"
+}
