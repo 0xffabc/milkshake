@@ -17,7 +17,6 @@ object Tick {
       FreeCam.tick()
       FullBright.tick()
       ElytraTiming.tick()
-      ElytraFlight.tick()
       Zoom.tick()
       KillAura.tick()
       HoldHit.tick()
@@ -29,6 +28,12 @@ object Tick {
       BoatFlight.tick()
       PlayerFlight.tick()
       TargetStrafe.tick()
+
+      if (ElytraTarget.enabled()) {
+          ElytraTarget.tick()
+      } else {
+          ElytraFlight.tick()
+      }
     }
   }
 }

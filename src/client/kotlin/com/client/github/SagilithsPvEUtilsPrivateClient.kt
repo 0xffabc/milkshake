@@ -104,6 +104,7 @@ object SagilithsPvEUtilsPrivateClient : ClientModInitializer {
     ExtrasensoryPerception.bootstrap()
     ElytraTiming.bootstrap()
     ElytraFlight.bootstrap()
+    ElytraTarget.bootstrap()
     Zoom.bootstrap()
     KillAura.bootstrap()
     AntiFireDamage.bootstrap()

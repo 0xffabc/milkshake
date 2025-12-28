@@ -1,7 +1,6 @@
 package com.client.github.feature.combat
 
 import net.minecraft.client.MinecraftClient
-import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.Entity
 import net.minecraft.entity.LivingEntity
 import net.minecraft.client.network.ClientPlayerEntity
@@ -9,6 +8,7 @@ import net.minecraft.entity.decoration.EndCrystalEntity
 import net.minecraft.util.math.Vec3d
 import net.minecraft.util.hit.EntityHitResult
 
+import com.client.github.utility.TargetLock
 import com.client.github.feature.Module
 import com.client.github.feature.Criticals
 
@@ -20,7 +20,7 @@ object KillAura {
   val onlyFans = Module("Combat", "KillAura:OnlyCrits")
   val triggerBot = Module("Combat", "KillAura:TriggerBot")
 
-  val killauraReach = 4.2
+  val killauraReach = 6.0
 
   fun bootstrap() {
     mc = MinecraftClient.getInstance()
@@ -33,9 +33,9 @@ object KillAura {
     val playerPos = (mc.player as Entity).getPos()
 
     if (entityPos.distanceTo(playerPos) > killauraReach) return null
-    
+
     Criticals.prepare()
-    
+
     mc.interactionManager?.attackEntity(mc.player, entity)
     (mc.player as ClientPlayerEntity).swingHand((mc.player as ClientPlayerEntity).getActiveHand())
 
@@ -65,30 +65,15 @@ object KillAura {
         val entity = hitResult.getEntity()
 
         if (entity == mc?.player || !entity.isAlive() || entity !is LivingEntity || entity is EndCrystalEntity || !entity.isAttackable()) return
-        
+
         hit(entity) ?: return
       }
 
       return
     }
 
-    mc?.world?.let {
-      val entities = (mc.world as ClientWorld).getEntities()
-      val playerPos = (mc.player as Entity).getPos()
+    val entity = TargetLock.getAttackTarget() ?: return
 
-      for (entity in entities) {
-        if (entity == null) continue
-        if (entity == mc?.player) continue
-        if (!entity.isAlive()) continue
-        if (!(entity is LivingEntity)) continue
-        if (entity is EndCrystalEntity) continue
-        if (!entity.isAttackable()) continue
-
-        hit(entity) ?: continue
-
-        break
-      }
-    }
+    hit(entity)
   }
 }
-

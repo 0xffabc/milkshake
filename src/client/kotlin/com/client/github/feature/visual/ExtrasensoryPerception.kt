@@ -15,6 +15,9 @@ import com.mojang.blaze3d.systems.RenderSystem
 
 import com.client.github.feature.Module
 
+import com.client.github.utility.TargetLock
+import com.client.github.utility.PathUtils
+
 import kotlin.math.*
 import org.joml.*
 
@@ -57,6 +60,12 @@ object ExtrasensoryPerception {
     "Item tracers"
   )
 
+  private val modTarget = Module(
+    "Visual",
+    "Target tracer",
+    true
+  )
+
   private lateinit var mc: MinecraftClient
   private var wasBobblingOn: Boolean = false
 
@@ -65,7 +74,7 @@ object ExtrasensoryPerception {
   }
 
   fun render(stack: MatrixStack, consumers: VertexConsumerProvider) {
-    if (!modPlayer.enabled() && !modMob.enabled() && !modItem.enabled()) {
+    if (!modPlayer.enabled() && !modMob.enabled() && !modItem.enabled() && !modTarget.enabled()) {
       if (wasBobblingOn) mc.options.getBobView().setValue(true)
 
       return
@@ -114,6 +123,24 @@ object ExtrasensoryPerception {
           dirVec,
           color
         )
+      }
+
+      val targetEntity = TargetLock.getAttackTarget()
+
+      if (targetEntity != null) {
+        val predictedPos = PathUtils.predictPathEndForElytra(mc.player!!, targetEntity)
+        val color = 0xFF00FF00.toInt()
+
+        val pos = predictedPos//targetEntity.getLerpedPos(0.5f)
+
+        if (pos != null) {
+          drawLine(
+            stack, consumers,
+            pos.add(0.0, targetEntity.height / 2.0, 0.0).subtract(cameraPos),
+            dirVec,
+            color
+          )
+        }
       }
 
       RenderSystem.setShader(GameRenderer::getPositionColorProgram)

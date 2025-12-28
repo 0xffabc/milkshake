@@ -6,7 +6,8 @@
     "MovementPacketMixin",
     "SharedConstantsMixin",
     "AbstractClientPlayerEntityMixin",
-    "MusicTrackerMixin"
+    "MusicTrackerMixin",
+    "BlockRenderManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
