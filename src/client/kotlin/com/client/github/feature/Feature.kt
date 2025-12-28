@@ -24,5 +24,6 @@ open class Module(
   fun disabled(): Boolean = enabled().not()
 
   fun enable() = FeatureConfig.config.put(featureName, true)
+  fun disable() = FeatureConfig.config.put(featureName, false)
   fun invertState() = FeatureConfig.config.put(featureName, disabled())
 }

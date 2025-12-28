@@ -7,6 +7,7 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket
 
 import com.client.github.feature.Module
 import com.client.github.feature.elytra.ElytraTiming
+import com.client.github.feature.elytra.modes.*
 
 import kotlin.math.*
 
@@ -18,98 +19,9 @@ object ElytraFlight {
     "Elytra flight"
   )
 
-  val grimFlight = Module(
-    "Elytra",
-    "Elytra flight:AAC"
-  )
-
-  val bounceFlight = Module(
-    "Elytra",
-    "Elytra flight:Bounce"
-  )
-
-  val bounceFlightLegit = Module(
-    "Elytra",
-    "Elytra flight:Bounce:Legit"
-  )
-
-  val boostFlight = Module(
-    "Elytra",
-    "Elytra flight:Boost"
-  )
-
-  val themisFlight = Module(
-    "Elytra",
-    "Elytra flight:Themis"
-  )
-
   private lateinit var mc: MinecraftClient
 
-  public var velocity = 0.02
-  public var themisFlightYLevel = 80.0
-  public var themisFlightYGap = 10.0
-  public var themisFlightYVel = 3.0
-  public var reachedYMax = false
-
-  internal fun themisFlight() {
-    val player = mc.player ?: return
-
-    if ((player.getY() < themisFlightYLevel - themisFlightYGap || (aboutToHitGround() ?: false)) && !reachedYMax) {
-      player.setVelocity(0.0, min(themisFlightYLevel - player.getY(), themisFlightYVel), 0.0)
-    } else {
-      if (aboutToHitGround() ?: false) {
-        reachedYMax = false
-
-        return themisFlight()
-      }
-
-      if (player.getY() > themisFlightYLevel + themisFlightYGap) {
-        ElytraTiming.enter()
-      }
-
-      reachedYMax = player.getY() > themisFlightYLevel - themisFlightYGap
-
-      if (!reachedYMax) {
-        ElytraTiming.quit()
-      }
-    }
-  }
-
-  private var bouncePitch: Float? = null
-
-  internal fun bounceFly() {
-    val player = mc.player ?: return
-
-    if (bounceFlightLegit.enabled()) mc.options.jumpKey.setPressed(true)
-
-    bouncePitch?.let { player.setPitch(bouncePitch as Float) }
-
-    if (!player.isFallFlying() && !player.isOnGround()) {
-      if (!bounceFlightLegit.enabled()) player.jump()
-      player.startFallFlying()
-      mc?.networkHandler?.sendPacket(ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING))
-    }
-  }
-
-  private var boostStartPitch = 32.5
-  private var boostEndPitch = -49.0
-  private var boostCDownVel = 0.5f
-
   private fun aboutToHitGround(): Boolean? = !(0..3).all { mc!!.world!!.getBlockState(mc!!.player!!.getBlockPos()!!.down(it))!!.isAir() }
-
-  internal fun boostFlight() {
-    val player = mc.player ?: return
-
-    player.setPitch(
-      if (aboutToHitGround() ?: false) {
-        boostEndPitch -= boostCDownVel
-        boostEndPitch.toFloat()
-      } else {
-        boostEndPitch = -49.0
-        boostStartPitch.toFloat()
-      }
-    )
-  }
 
   fun bootstrap() {
     mc = MinecraftClient.getInstance()
@@ -139,31 +51,34 @@ object ElytraFlight {
       return movementVec
   }
 
+  init {
+      Themis
+      Bounce
+      Angle
+      Accelerate
+      Packet
+      Firework
+  }
+
   fun tick() {
     if (!mod.enabled()) return
-    if (themisFlight.enabled()) return themisFlight()
-    if (bounceFlight.enabled()) return bounceFly()
-    if (!(mc?.player?.isFallFlying() ?: false)) return
-
-    if (boostFlight.enabled()) return boostFlight()
 
     val movementVec = getMovementVector() ?: return
 
-    if (grimFlight.enabled()) {
-      mc?.player?.addVelocity(movementVec.multiply(velocity))
-    } else mc?.player?.setVelocity(movementVec)
+    tick(movementVec)
   }
 
   fun tick(movementVec: Vec3d) {
     if (!mod.enabled()) return
-    if (themisFlight.enabled()) return themisFlight()
-    if (bounceFlight.enabled()) return bounceFly()
+    if (Firework.mod.enabled()) Firework.tick(movementVec)
+    if (Themis.mod.enabled()) return Themis.tick(movementVec)
+    if (Bounce.mod.enabled()) return Bounce.tick(movementVec)
     if (!(mc?.player?.isFallFlying() ?: false)) return
 
-    if (boostFlight.enabled()) return boostFlight()
+    if (Angle.mod.enabled()) Angle.tick(movementVec)
 
-    if (grimFlight.enabled()) {
-      mc?.player?.addVelocity(movementVec.multiply(velocity))
-    } else mc?.player?.setVelocity(movementVec)
+    if (Accelerate.mod.enabled()) {
+        Accelerate.tick(movementVec)
+    } else if (Packet.mod.enabled()) Packet.tick(movementVec)
   }
 }

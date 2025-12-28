@@ -9,6 +9,7 @@ import net.minecraft.entity.Entity
 import com.client.github.feature.Module
 import com.client.github.feature.FeatureConfig
 import com.client.github.feature.elytra.ElytraFlight
+import com.client.github.feature.elytra.modes.*
 
 object ElytraTiming {
   private val mod = Module(
@@ -48,7 +49,7 @@ object ElytraTiming {
     mc?.networkHandler?.sendPacket(ClientCommandC2SPacket(mc!!.player, ClientCommandC2SPacket.Mode.START_FALL_FLYING))
     mc?.player?.startFallFlying()
 
-    if (::resetPos.isInitialized && FeatureConfig.config.getOrDefault("Elytra flight", false) && !ElytraFlight.grimFlight.enabled()) {
+    if (::resetPos.isInitialized && FeatureConfig.config.getOrDefault("Elytra flight", false) && !Packet.mod.enabled()) {
       mc?.player?.setPosition(resetPos.getX(), resetPos.getY(), resetPos.getZ())
     }
 
@@ -74,7 +75,7 @@ object ElytraTiming {
 
     if (tickCount % 15 == 0) {
       quit()
-      
+
       resetPos = (mc.player as Entity).getPos()
       requireReset = true
     }

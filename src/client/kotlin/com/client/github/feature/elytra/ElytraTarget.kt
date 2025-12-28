@@ -15,6 +15,7 @@ import com.client.github.utility.Toast
 import com.client.github.feature.combat.KillAura
 import com.client.github.utility.PathUtils
 import com.client.github.utility.TargetLock
+import com.client.github.feature.elytra.modes.*
 
 object ElytraTarget : Module("Elytra", "Elytra target") {
     private lateinit var mc: MinecraftClient
@@ -63,7 +64,7 @@ object ElytraTarget : Module("Elytra", "Elytra target") {
         if (!ElytraFlight.mod.enabled()) {
             KillAura.mod.enable()
             ElytraFlight.mod.enable()
-            ElytraFlight.grimFlight.enable()
+            Accelerate.mod.enable()
         }
 
         ElytraFlight.tick(path)

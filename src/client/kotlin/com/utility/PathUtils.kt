@@ -20,6 +20,7 @@ import baritone.api.pathing.movement.IMovement
 
 import com.client.github.feature.elytra.ElytraFlight
 import com.client.github.utility.Toast
+import com.client.github.feature.elytra.modes.*
 
 object PathUtils {
     private var pathLock: IMovement? = null
@@ -46,7 +47,7 @@ object PathUtils {
         val endVec = target.getBlockPos().toCenterPos()
 
         val distance = startVec.distanceTo(endVec)
-        val time = distance / (ElytraFlight.velocity * UNITS_PER_BLOCK)
+        val time = distance / UNITS_PER_BLOCK
 
         val enemyPredictedMovement = target.getVelocity().multiply(time / 2)
 
@@ -59,7 +60,7 @@ object PathUtils {
 
     fun findPath(start: Vec3d, end: Vec3d): Vec3d {
         if (canStraightflyFrom(start, end)) {
-            if (ElytraFlight.grimFlight.enabled()) {
+            if (Accelerate.mod.enabled()) {
                 val baritone = BaritoneAPI.getProvider().getPrimaryBaritone()
                 val behaviour = baritone.getPathingBehavior()
 
@@ -67,16 +68,18 @@ object PathUtils {
 
                 Toast("Pathfinder", "Disabled acceleration flight", SystemToast.Type.TUTORIAL_HINT)
 
-                ElytraFlight.grimFlight.invertState()
+                Accelerate.mod.disable()
+                Packet.mod.enable()
             }
 
             return end.subtract(start).normalize()
         }
 
-        if (ElytraFlight.grimFlight.disabled()) {
+        if (Accelerate.mod.disabled()) {
             Toast("Pathfinder", "Enabled acceleration flight", SystemToast.Type.TUTORIAL_HINT)
 
-            ElytraFlight.grimFlight.invertState()
+            Accelerate.mod.enable()
+            Packet.mod.disable()
         }
 
         val distance = end.distanceTo(start)
