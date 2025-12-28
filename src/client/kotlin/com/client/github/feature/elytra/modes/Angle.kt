@@ -28,6 +28,8 @@ object Angle : ElytraFlightMode("Angle") {
     }
 
     override fun tick(movementVector: Vec3d) {
+        adjustDirection(movementVector)
+
         val player = mc?.player ?: return
         val pitch = player.getPitch()
 
@@ -56,7 +58,7 @@ object Angle : ElytraFlightMode("Angle") {
     }
 
     override fun tick() {
-        val movementVector = getMovementVector()
+        val movementVector = getRawMovementVector()
 
         tick(movementVector ?: return)
     }

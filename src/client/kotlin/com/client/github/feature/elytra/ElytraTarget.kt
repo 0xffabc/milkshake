@@ -37,11 +37,11 @@ object ElytraTarget : Module("Elytra", "Elytra target") {
                 Toast("Elytra target", "Elytra target frozen", SystemToast.Type.TUTORIAL_HINT)
 
                 if (ElytraFlight.mod.enabled()) {
-                    ElytraFlight.mod.invertState()
+                    ElytraFlight.mod.disable()
                 }
 
                 if (KillAura.mod.enabled()) {
-                    KillAura.mod.invertState()
+                    KillAura.mod.disable()
                 }
 
                 mc!!.player!!.stopFallFlying()
@@ -61,7 +61,7 @@ object ElytraTarget : Module("Elytra", "Elytra target") {
 
         val path = PathUtils.findPath(playerPos, targetPos)
 
-        if (!ElytraFlight.mod.enabled()) {
+        if ((!Accelerate.mod.enabled() && !Packet.mod.enabled()) || !ElytraFlight.mod.enabled() || !KillAura.mod.enabled()) {
             KillAura.mod.enable()
             ElytraFlight.mod.enable()
             Accelerate.mod.enable()

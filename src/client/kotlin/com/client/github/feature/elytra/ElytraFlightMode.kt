@@ -5,9 +5,45 @@ import com.client.github.feature.Module
 import net.minecraft.client.MinecraftClient
 import net.minecraft.util.math.Vec3d
 
+import kotlin.math.*
+
 abstract class ElytraFlightMode(val name: String) {
     val mod = Module("Elytra", "Elytra flight: $name")
     val mc = MinecraftClient.getInstance()
+
+    fun adjustDirection(movementVec: Vec3d) {
+        if (!mc.player!!.isFallFlying()) return
+
+        val player = mc.player ?: return
+        val camera = mc?.gameRenderer?.getCamera() ?: return
+
+        val yaw = atan2(movementVec.z, movementVec.x)
+        val pitch = atan2(movementVec.y, sqrt(movementVec.x * movementVec.x + movementVec.z * movementVec.z))
+
+        val yawDeg = (yaw * 180f / PI - 90f).toFloat()
+        val pitchDeg = (-pitch * 180 / PI).toFloat()
+
+        player.setPitch(pitchDeg)
+        player.setYaw(yawDeg)
+        player.headYaw = yawDeg
+        player.bodyYaw = yawDeg
+    }
+
+    fun getRawMovementVector(): Vec3d {
+        var movementVec = Vec3d.ZERO
+
+        if (mc?.options?.forwardKey!!.isPressed()) movementVec = movementVec.add(1.0, 0.0, 0.0)
+        if (mc?.options?.backKey!!.isPressed()) movementVec = movementVec.subtract(1.0, 0.0, 0.0)
+        if (mc?.options?.leftKey!!.isPressed()) movementVec = movementVec.subtract(0.0, 0.0, 1.0)
+        if (mc?.options?.rightKey!!.isPressed()) movementVec = movementVec.add(0.0, 0.0, 1.0)
+
+        movementVec = movementVec.multiply(1.0, 0.0, 1.0)
+
+        if (mc?.options?.jumpKey!!.isPressed()) movementVec = movementVec.add(0.0, 1.0, 0.0)
+        else if (mc?.options?.sneakKey!!.isPressed()) movementVec = movementVec.add(0.0, -1.0, 0.0)
+
+        return movementVec
+    }
 
     fun getMovementVector(): Vec3d? {
         var movementVec = Vec3d.ZERO

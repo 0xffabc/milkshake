@@ -27,30 +27,6 @@ object ElytraFlight {
     mc = MinecraftClient.getInstance()
   }
 
-  fun getMovementVector(): Vec3d? {
-      var movementVec = Vec3d.ZERO
-
-      val camera = mc?.gameRenderer?.getCamera() ?: return null
-
-      val pitch = camera.getPitch()
-      val yaw = camera.getYaw()
-
-      val straight = Vec3d.fromPolar(pitch, yaw)
-      val gay = Vec3d.fromPolar(0f, yaw + 90f)
-
-      if (mc?.options?.forwardKey!!.isPressed()) movementVec = movementVec.add(straight)
-      if (mc?.options?.backKey!!.isPressed()) movementVec = movementVec.subtract(straight)
-      if (mc?.options?.leftKey!!.isPressed()) movementVec = movementVec.subtract(gay)
-      if (mc?.options?.rightKey!!.isPressed()) movementVec = movementVec.add(gay)
-
-      movementVec = movementVec.multiply(1.0, 0.0, 1.0)
-
-      if (mc?.options?.jumpKey!!.isPressed()) movementVec = movementVec.add(0.0, 1.0, 0.0)
-      else if (mc?.options?.sneakKey!!.isPressed()) movementVec = movementVec.add(0.0, -1.0, 0.0)
-
-      return movementVec
-  }
-
   init {
       Themis
       Bounce
@@ -63,22 +39,29 @@ object ElytraFlight {
   fun tick() {
     if (!mod.enabled()) return
 
-    val movementVec = getMovementVector() ?: return
-
-    tick(movementVec)
+    tick(null)
   }
 
-  fun tick(movementVec: Vec3d) {
+  fun tick(movementVec: Vec3d?) {
     if (!mod.enabled()) return
-    if (Firework.mod.enabled()) Firework.tick(movementVec)
-    if (Themis.mod.enabled()) return Themis.tick(movementVec)
-    if (Bounce.mod.enabled()) return Bounce.tick(movementVec)
+
+    val actualMovementVec = Firework.getMovementVector() ?: return
+
+    val fakeMovementVec = if (movementVec == null) {
+        actualMovementVec
+    } else {
+        movementVec
+    }
+
+    if (Firework.mod.enabled()) Firework.tick(fakeMovementVec)
+    if (Themis.mod.enabled()) return Themis.tick(fakeMovementVec)
+    if (Bounce.mod.enabled()) return Bounce.tick(actualMovementVec)
     if (!(mc?.player?.isFallFlying() ?: false)) return
 
-    if (Angle.mod.enabled()) Angle.tick(movementVec)
+    if (Angle.mod.enabled()) Angle.tick(actualMovementVec)
 
     if (Accelerate.mod.enabled()) {
-        Accelerate.tick(movementVec)
-    } else if (Packet.mod.enabled()) Packet.tick(movementVec)
+        Accelerate.tick(actualMovementVec)
+    } else if (Packet.mod.enabled()) Packet.tick(fakeMovementVec)
   }
 }
