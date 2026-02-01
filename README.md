@@ -1,5 +1,8 @@
 # Milkshake
 
+> [!WARNING]
+> This project is completely adandoned, because I've got no motivation to live
+
 > Currently in development, expect a vast amount of changes ,bkledmfbl;jkaedmfb;lkjadfmbsd'rflg,bnlpkowsrfgkm,bnps;rfdgkmbnop[iksfrg'n, bkmp
 
 ## Info
